@@ -1,0 +1,11 @@
+python ofa_cifar10_fixed_v2.py train_supernet ^
+  --data-dir ./data ^
+  --save-dir ./runs/ofa_cifar10 ^
+  --epochs-largest 5 ^
+  --epochs-kernel 2 ^
+  --epochs-depth1 1 ^
+  --epochs-depth2 2 ^
+  --epochs-width1 1 ^
+  --epochs-width2 2 ^
+  --channel-sort ^
+  --shrink-lr 0.005

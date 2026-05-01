@@ -1,0 +1,11 @@
+python ofa_cifar10_options.py sample_acc_dataset ^
+  --data-dir ./data ^
+  --save-dir ./runs/ofa_cifar10 ^
+  --checkpoint ./runs/ofa_cifar10/checkpoints/supernet_last.pt ^
+  --num-arch-samples 1000 ^
+  --output ./runs/ofa_cifar10/acc_dataset_1000.jsonl ^
+  --bn-calib-batches 5 ^
+  --val-batches 10 ^
+  --batch-size 512 ^
+  --num-workers 0 ^
+  --eval-preset accurate
