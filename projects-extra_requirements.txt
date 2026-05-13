@@ -3,5 +3,3 @@ If computational resources available: train and sample on CIFAR-10, highlighting
 If no computational resources available: downscale to MNIST
 Point of reflexion: Can we leverage second-order information to do the sampling?
 
-Group D "Masked Autoencoders"
-- Use CLIP or derived aligned textual models to identify semanticity of the latent space
