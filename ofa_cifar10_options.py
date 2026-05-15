@@ -475,27 +475,118 @@ class DynamicPointConv2d(nn.Module):
         return F.conv2d(x, weight, bias=bias, stride=1, padding=0)
 
 
-class DynamicDepthwiseConv2d(nn.Module):
-    """Depthwise convolution with dynamic channels and kernel size.
+# old
+# class DynamicDepthwiseConv2d(nn.Module):
+#     """Depthwise convolution with dynamic channels and kernel size.
 
-    Kernel nesting follows OFA's rule: a 3x3 kernel is the center crop of a 5x5,
-    which is the center crop of a 7x7. This gives deterministic inclusion.
+#     Kernel nesting follows OFA's rule: a 3x3 kernel is the center crop of a 5x5,
+#     which is the center crop of a 7x7. This gives deterministic inclusion.
+#     """
+
+#     def __init__(self, max_channels: int, max_kernel_size: int = 7):
+#         super().__init__()
+#         self.max_channels = max_channels
+#         self.max_kernel_size = max_kernel_size
+#         self.weight = nn.Parameter(torch.empty(max_channels, 1, max_kernel_size, max_kernel_size))
+#         nn.init.kaiming_normal_(self.weight, mode="fan_out")
+
+#     def forward(self, x: torch.Tensor, kernel_size: int, stride: int) -> torch.Tensor:
+#         c = x.size(1)
+#         start = (self.max_kernel_size - kernel_size) // 2
+#         end = start + kernel_size
+#         weight = self.weight[:c, :, start:end, start:end]
+#         padding = kernel_size // 2
+#         return F.conv2d(x, weight, bias=None, stride=stride, padding=padding, groups=c)
+
+
+
+class DynamicDepthwiseConv2d(nn.Module):
+    """Depthwise convolution with dynamic channels and optional OFA-style kernel transforms.
+
+    For max_kernel_size=7:
+      7x7 -> center crop 5x5 -> learned 25x25 transform
+      5x5 -> center crop 3x3 -> learned 9x9 transform
+
+    For smaller fixed blocks, e.g. max_kernel_size=3, it falls back to simple crop.
     """
 
     def __init__(self, max_channels: int, max_kernel_size: int = 7):
         super().__init__()
+
         self.max_channels = max_channels
         self.max_kernel_size = max_kernel_size
-        self.weight = nn.Parameter(torch.empty(max_channels, 1, max_kernel_size, max_kernel_size))
+
+        self.weight = nn.Parameter(
+            torch.empty(max_channels, 1, max_kernel_size, max_kernel_size)
+        )
         nn.init.kaiming_normal_(self.weight, mode="fan_out")
+
+        if max_kernel_size == 7:
+            self.transform_7to5 = nn.Linear(25, 25, bias=False)
+            self.transform_5to3 = nn.Linear(9, 9, bias=False)
+
+            nn.init.eye_(self.transform_7to5.weight)
+            nn.init.eye_(self.transform_5to3.weight)
+        else:
+            self.transform_7to5 = None
+            self.transform_5to3 = None
+
+    def get_active_filter(self, kernel_size: int) -> torch.Tensor:
+        """Return active depthwise kernel tensor.
+
+        Output shape:
+            (max_channels, 1, kernel_size, kernel_size)
+        """
+        if kernel_size > self.max_kernel_size:
+            raise ValueError(
+                f"kernel_size={kernel_size} > max_kernel_size={self.max_kernel_size}"
+            )
+
+        if kernel_size == self.max_kernel_size:
+            return self.weight
+
+        # For non-7x7 layers, use plain center crop.
+        if self.max_kernel_size != 7:
+            start = (self.max_kernel_size - kernel_size) // 2
+            end = start + kernel_size
+            return self.weight[:, :, start:end, start:end]
+
+        # 7x7 -> 5x5 with learned transform.
+        weight_5 = self.weight[:, :, 1:6, 1:6]
+        c = weight_5.size(0)
+        weight_5_flat = weight_5.reshape(c, 25)
+        weight_5_flat = self.transform_7to5(weight_5_flat)
+        weight_5 = weight_5_flat.reshape(c, 1, 5, 5)
+
+        if kernel_size == 5:
+            return weight_5
+
+        if kernel_size == 3:
+            # 5x5 -> 3x3 with learned transform.
+            weight_3 = weight_5[:, :, 1:4, 1:4]
+            weight_3_flat = weight_3.reshape(c, 9)
+            weight_3_flat = self.transform_5to3(weight_3_flat)
+            weight_3 = weight_3_flat.reshape(c, 1, 3, 3)
+            return weight_3
+
+        raise ValueError(f"Unsupported kernel_size={kernel_size}")
 
     def forward(self, x: torch.Tensor, kernel_size: int, stride: int) -> torch.Tensor:
         c = x.size(1)
-        start = (self.max_kernel_size - kernel_size) // 2
-        end = start + kernel_size
-        weight = self.weight[:c, :, start:end, start:end]
+
+        weight = self.get_active_filter(kernel_size)
+        weight = weight[:c, :, :, :]
+
         padding = kernel_size // 2
-        return F.conv2d(x, weight, bias=None, stride=stride, padding=padding, groups=c)
+        return F.conv2d(
+            x,
+            weight,
+            bias=None,
+            stride=stride,
+            padding=padding,
+            groups=c,
+        )
+
 
 
 class DynamicMBConv(nn.Module):
@@ -1672,8 +1763,9 @@ def cmd_train_supernet(args: argparse.Namespace) -> None:
         if args.channel_sort and stage in {"width1", "width2"}:
             print("Applying simplified L1 channel sorting before width-shrinking stage.")
             model.sort_all_middle_channels_by_l1()
-
+        
         for _ in range(n_epochs):
+            t_init = time.time()
             epoch_global += 1
             train_metrics = train_one_epoch(
                 model=model,
@@ -1699,7 +1791,8 @@ def cmd_train_supernet(args: argparse.Namespace) -> None:
                 f"train_acc={train_metrics['acc']:.2f} val_largest_acc={val_metrics['acc']:.2f} "
                 f"lr={scheduler.get_last_lr()[0]:.5f}"
             )
-
+            print("durée de l'epoch :", time.time()-t_init)
+            
             is_best = val_metrics["acc"] > best_acc
             if is_best:
                 best_acc = val_metrics["acc"]

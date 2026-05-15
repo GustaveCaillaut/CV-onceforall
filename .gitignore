@@ -220,3 +220,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+
+ofa_kernel_transform_10h/checkpoints_intermediate/
