@@ -1,0 +1,10 @@
+/home/gcaillaut/cv_ofa/ofa_cifar10_options.py:1289: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  ckpt = torch.load(path, map_location=device)
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Eval options: {"bn_calib_loader": "train", "cache_calib_on_gpu": true, "cache_eval_on_gpu": true, "cudnn_benchmark": true, "pre_resize_cache": true, "restore_bn_after_eval": false, "timing": true}
+Subnet spec: {'r': 24, 'd': [2, 3, 4, 4, 2], 'ks': [5, 5, 3, 7, 3, 5, 3, 3, 3, 5, 7, 3, 3, 7, 5, 7, 5, 5, 3, 5], 'e': [4, 4, 4, 4, 6, 6, 4, 4, 6, 6, 6, 4, 6, 3, 4, 3, 6, 3, 6, 6]}
+MACs: 39.62M
+Test accuracy: 91.52, loss: 0.3117
+Evaluation time: total=2.24s calib=1.85s eval=0.39s

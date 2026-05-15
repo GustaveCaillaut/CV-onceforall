@@ -1,0 +1,42 @@
+=== START OFA 10H RUN ===
+=== RUNNING train_supernet ===
+DONE train_supernet
+=== RUNNING sample_acc_dataset ===
+DONE sample_acc_dataset
+=== RUNNING train_acc_predictor ===
+DONE train_acc_predictor
+=== RUNNING search_20m ===
+FAILED search_20m
+Skipping failed search step: search_20m
+No feasible subnet for 20M MACs, skipping eval_20m
+=== RUNNING search_25m ===
+DONE search_25m
+=== RUNNING eval_25m ===
+DONE eval_25m
+=== RUNNING search_30m ===
+DONE search_30m
+=== RUNNING eval_30m ===
+DONE eval_30m
+=== RUNNING search_40m ===
+DONE search_40m
+=== RUNNING eval_40m ===
+DONE eval_40m
+=== RUNNING search_60m ===
+DONE search_60m
+=== RUNNING eval_60m ===
+DONE eval_60m
+=== RUNNING search_80m ===
+DONE search_80m
+=== RUNNING eval_80m ===
+DONE eval_80m
+=== RUNNING search_120m ===
+DONE search_120m
+=== RUNNING eval_120m ===
+DONE eval_120m
+=== RUNNING search_160m ===
+DONE search_160m
+=== RUNNING eval_160m ===
+DONE eval_160m
+=== RUNNING eval_80m_no_bn ===
+DONE eval_80m_no_bn
+=== ALL DONE ===
