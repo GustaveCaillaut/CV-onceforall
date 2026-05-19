@@ -1,5 +1,0 @@
-Group C "Once for all"
-If computational resources available: train and sample on CIFAR-10, highlighting trade-offs between performance (top1 accuracy), computation (FLOPs, inference time) and memory
-If no computational resources available: downscale to MNIST
-Point of reflexion: Can we leverage second-order information to do the sampling?
-

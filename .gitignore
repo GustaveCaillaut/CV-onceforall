@@ -223,3 +223,23 @@ __marimo__/
 
 
 runs/ofa_kernel_transform_10h/checkpoints_intermediate/
+
+# Ajout d'Alexandre dans le gitignore
+
+# Résultats d'entraînement et modèles
+*.pt
+*.pth
+*.jsonl
+*.log
+*.csv
+*.png
+
+# Dossiers de runs (sauf peut-être les scripts, mais tes runs contiennent des checkpoints lourds)
+runs/
+!runs/*/search/best_spec.json   # si tu veux garder uniquement les meilleures architectures
+!runs/*/run_args.json
+
+# Fichiers temporaires ou locaux
+*.bat
+*.exe
+*.tmp

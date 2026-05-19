@@ -6,8 +6,6 @@ Ce dépôt contient une implémentation compacte et modifiable d’un pipeline i
 ofa_cifar10_options.py
 ```
 
-Le fixed_v2 ne contient aucune option d'optimisation, mais son comportement peut être reproduit avec les options, donc _options.py devrait suffire
-
 L’objectif est de reproduire, à une échelle raisonnable, les grandes étapes d’OFA :
 
 1. entraîner un **supernet** qui partage ses poids entre de nombreux sous-réseaux ;
