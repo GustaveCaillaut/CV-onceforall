@@ -1172,52 +1172,7 @@ C’est normal : le predictor est un petit MLP sur des vecteurs one-hot.
 
 C’est normal aussi : la recherche n’évalue pas les vrais CNN, seulement le MLP et les MACs analytiques.
 
----
-
-## 14. Recommandations expérimentales
-
-### Étude principale : nombre de samples predictor
-
-Comparer :
-
-```text
-N = 100, 300, 500, 1000, 2000
-```
-
-Pour chaque N :
-
-```text
-1. créer acc_dataset_N.jsonl
-2. entraîner predictor
-3. lancer search
-4. évaluer best_spec réel
-5. comparer RMSE et accuracy finale
-```
-
-### Étude sampling strategy
-
-Comparer :
-
-```text
-uniform
-small_biased
-large_biased
-stratified à implémenter
-```
-
-### Étude budget MACs
-
-Tester :
-
-```text
-40M, 60M, 80M, 100M, 120M
-```
-
-et construire une courbe Pareto.
-
----
-
-## 15. Exemple de workflow complet conseillé
+## 14. Exemple de workflow complet conseillé
 
 ```bat
 REM 1. Train supernet
@@ -1271,27 +1226,3 @@ python ofa_cifar10_options.py eval_subnet ^
   --num-workers 0 ^
   --eval-preset accurate
 ```
-
----
-
-## 16. Notes de review rapide du code actuel
-
-Le fichier compile correctement avec :
-
-```bash
-python -m py_compile ofa_cifar10_options.py
-```
-
-Quelques remarques :
-
-1. Les imports `csv`, `math`, `os` semblent peu ou pas utilisés. Ce n’est pas bloquant.
-2. `matplotlib.pyplot as plt` est importé, mais pas utilisé dans la version actuelle visible. Ce n’est pas bloquant.
-3. Le docstring initial contient encore des exemples anciens (`--epochs-depth`, `--epochs-width`, nom `ofa_cifar10.py`). Le présent README donne les commandes à jour.
-4. Le preset `accurate` contient quand même des optimisations par cache GPU. La précision réelle dépend surtout de `--bn-calib-batches`, `--val-batches` et `--test-batches`.
-5. Pour une comparaison strictement “sans optimisation”, utiliser `--eval-preset no_opti`.
-
----
-
-## 17. Résumé conceptuel en une phrase
-
-Ce code entraîne un supernet OFA-like sur CIFAR-10, mesure un sous-ensemble de sous-réseaux, apprend un modèle rapide qui prédit leur accuracy, puis utilise ce predictor pour chercher efficacement une architecture sous contrainte de MACs.
