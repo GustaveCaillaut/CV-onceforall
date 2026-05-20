@@ -41,6 +41,14 @@ Le pipeline complet est :
     Évalue réellement le sous-réseau trouvé.
 ```
 
+Lancement de l'ensemble du pipeline :
+
+```bash
+cd ./pipeline
+
+./run_overnight_long_ofa.sh
+```
+
 ---
 
 ## 2. Installation

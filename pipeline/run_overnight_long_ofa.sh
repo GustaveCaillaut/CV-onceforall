@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-RUN="./runs/ofa_kernel_transform_10h"
-DATA="./data"
+RUN="../run/ofa_kernel_transform_10h"
+DATA="../data"
 PY="python"
-SCRIPT="ofa_cifar10_options.py"
+SCRIPT="../source/ofa_cifar10_options.py"
 
 mkdir -p "$RUN/logs"
 echo "=== START OFA 10H RUN ===" | tee "$RUN/logs/run_all.log"
