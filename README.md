@@ -73,10 +73,10 @@ Le script télécharge CIFAR-10 automatiquement via `torchvision.datasets.CIFAR1
 
 ## 3. Structure des sorties
 
-Si `--save-dir ./runs/ofa_cifar10`, le script produit typiquement :
+Si `--save-dir ./run/ofa_kernel_transform_10h`, le script produit typiquement :
 
 ```text
-runs/ofa_cifar10/
+run/ofa_kernel_transform_10h/
 ├── run_args.json
 ├── acc_dataset_1000.jsonl
 ├── accuracy_predictor.pt
@@ -262,7 +262,7 @@ Commande courte pour debug :
 ```bat
 python ofa_cifar10_options.py train_supernet ^
   --data-dir ./data ^
-  --save-dir ./runs/ofa_cifar10 ^
+  --save-dir ./run/ofa_kernel_transform_10h ^
   --epochs-largest 5 ^
   --epochs-kernel 2 ^
   --epochs-depth1 1 ^
@@ -274,21 +274,23 @@ python ofa_cifar10_options.py train_supernet ^
   --num-workers 0
 ```
 
-Commande plus sérieuse :
+Commande utilisée pour entraîner le supernet final:
 
 ```bat
 python ofa_cifar10_options.py train_supernet ^
-  --data-dir ./data ^
-  --save-dir ./runs/ofa_cifar10 ^
-  --epochs-largest 50 ^
-  --epochs-kernel 25 ^
-  --epochs-depth1 10 ^
-  --epochs-depth2 25 ^
-  --epochs-width1 10 ^
-  --epochs-width2 25 ^
+  --data-dir "./data" ^
+  --save-dir "./run/ofa_kernel_transform_10h" ^
+  --epochs-largest 180 ^
+  --epochs-kernel 60 ^
+  --epochs-depth1 30 ^
+  --epochs-depth2 60 ^
+  --epochs-width1 30 ^
+  --epochs-width2 60 ^
   --channel-sort ^
-  --batch-size 128 ^
-  --num-workers 0
+  --shrink-lr 0.003 ^
+  --batch-size 256 ^
+  --num-workers 2 ^
+  --log-interval 50
 ```
 
 ### Paramètres importants
@@ -332,10 +334,10 @@ Exemple recommandé :
 ```bat
 python ofa_cifar10_options.py sample_acc_dataset ^
   --data-dir ./data ^
-  --save-dir ./runs/ofa_cifar10 ^
-  --checkpoint ./runs/ofa_cifar10/checkpoints/supernet_last.pt ^
+  --save-dir ./run/ofa_kernel_transform_10h ^
+  --checkpoint ./run/ofa_kernel_transform_10h/checkpoints/supernet_last.pt ^
   --num-arch-samples 1000 ^
-  --output ./runs/ofa_cifar10/acc_dataset_1000.jsonl ^
+  --output ./run/ofa_kernel_transform_10h/acc_dataset_1000.jsonl ^
   --bn-calib-batches 5 ^
   --val-batches 10 ^
   --batch-size 512 ^
@@ -387,8 +389,8 @@ large_biased
 
 ```bat
 python ofa_cifar10_options.py train_acc_predictor ^
-  --dataset ./runs/ofa_cifar10/acc_dataset_1000.jsonl ^
-  --save-dir ./runs/ofa_cifar10 ^
+  --dataset ./run/ofa_kernel_transform_10h/acc_dataset_1000.jsonl ^
+  --save-dir ./run/ofa_kernel_transform_10h ^
   --predictor-epochs 200 ^
   --predictor-batch-size 64 ^
   --predictor-lr 0.001
@@ -416,8 +418,8 @@ Ce n’est pas une erreur relative.
 
 ```bat
 python ofa_cifar10_options.py search ^
-  --predictor ./runs/ofa_cifar10/accuracy_predictor.pt ^
-  --save-dir ./runs/ofa_cifar10 ^
+  --predictor ./run/ofa_kernel_transform_10h/accuracy_predictor.pt ^
+  --save-dir ./run/ofa_kernel_transform_10h ^
   --macs-limit 80000000
 ```
 
@@ -436,7 +438,7 @@ MACs <= macs-limit
 Elle produit :
 
 ```text
-./runs/ofa_cifar10/search/best_spec.json
+./run/ofa_kernel_transform_10h/search/best_spec.json
 ```
 
 ### Tester plusieurs budgets
@@ -460,8 +462,8 @@ Pour construire une courbe accuracy/MACs :
 ```bat
 python ofa_cifar10_options.py eval_subnet ^
   --data-dir ./data ^
-  --checkpoint ./runs/ofa_cifar10/checkpoints/supernet_last.pt ^
-  --spec-json ./runs/ofa_cifar10/search/best_spec.json ^
+  --checkpoint ./run/ofa_kernel_transform_10h/checkpoints/supernet_last.pt ^
+  --spec-json ./run/ofa_kernel_transform_10h/search/best_spec.json ^
   --bn-calib-batches 5 ^
   --test-batches 10 ^
   --batch-size 512 ^
@@ -474,8 +476,8 @@ python ofa_cifar10_options.py eval_subnet ^
 ```bat
 python ofa_cifar10_options.py eval_subnet ^
   --data-dir ./data ^
-  --checkpoint ./runs/ofa_cifar10/checkpoints/supernet_last.pt ^
-  --spec-json ./runs/ofa_cifar10/search/best_spec.json ^
+  --checkpoint ./run/ofa_kernel_transform_10h/checkpoints/supernet_last.pt ^
+  --spec-json ./run/ofa_kernel_transform_10h/search/best_spec.json ^
   --bn-calib-batches 20 ^
   --batch-size 512 ^
   --num-workers 0 ^
@@ -1178,7 +1180,7 @@ C’est normal aussi : la recherche n’évalue pas les vrais CNN, seulement le 
 REM 1. Train supernet
 python ofa_cifar10_options.py train_supernet ^
   --data-dir ./data ^
-  --save-dir ./runs/ofa_cifar10 ^
+  --save-dir ./run/ofa_kernel_transform_10h ^
   --epochs-largest 50 ^
   --epochs-kernel 25 ^
   --epochs-depth1 10 ^
@@ -1192,10 +1194,10 @@ python ofa_cifar10_options.py train_supernet ^
 REM 2. Sample 1000 architectures
 python ofa_cifar10_options.py sample_acc_dataset ^
   --data-dir ./data ^
-  --save-dir ./runs/ofa_cifar10 ^
-  --checkpoint ./runs/ofa_cifar10/checkpoints/supernet_last.pt ^
+  --save-dir ./run/ofa_kernel_transform_10h ^
+  --checkpoint ./run/ofa_kernel_transform_10h/checkpoints/supernet_last.pt ^
   --num-arch-samples 1000 ^
-  --output ./runs/ofa_cifar10/acc_dataset_1000.jsonl ^
+  --output ./run/ofa_kernel_transform_10h/acc_dataset_1000.jsonl ^
   --bn-calib-batches 5 ^
   --val-batches 10 ^
   --batch-size 512 ^
@@ -1204,23 +1206,23 @@ python ofa_cifar10_options.py sample_acc_dataset ^
 
 REM 3. Train accuracy predictor
 python ofa_cifar10_options.py train_acc_predictor ^
-  --dataset ./runs/ofa_cifar10/acc_dataset_1000.jsonl ^
-  --save-dir ./runs/ofa_cifar10 ^
+  --dataset ./run/ofa_kernel_transform_10h/acc_dataset_1000.jsonl ^
+  --save-dir ./run/ofa_kernel_transform_10h ^
   --predictor-epochs 200 ^
   --predictor-batch-size 64 ^
   --predictor-lr 0.001
 
 REM 4. Search under 80M MACs
 python ofa_cifar10_options.py search ^
-  --predictor ./runs/ofa_cifar10/accuracy_predictor.pt ^
-  --save-dir ./runs/ofa_cifar10 ^
+  --predictor ./run/ofa_kernel_transform_10h/accuracy_predictor.pt ^
+  --save-dir ./run/ofa_kernel_transform_10h ^
   --macs-limit 80000000
 
 REM 5. Evaluate selected subnet
 python ofa_cifar10_options.py eval_subnet ^
   --data-dir ./data ^
-  --checkpoint ./runs/ofa_cifar10/checkpoints/supernet_last.pt ^
-  --spec-json ./runs/ofa_cifar10/search/best_spec.json ^
+  --checkpoint ./run/ofa_kernel_transform_10h/checkpoints/supernet_last.pt ^
+  --spec-json ./run/ofa_kernel_transform_10h/search/best_spec.json ^
   --bn-calib-batches 20 ^
   --batch-size 512 ^
   --num-workers 0 ^
