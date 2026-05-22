@@ -1236,3 +1236,10 @@ python ofa_cifar10_options.py eval_subnet ^
   --num-workers 0 ^
   --eval-preset accurate
 ```
+## 15. Contributions
+
+Gustave : Implémentation du modèle adapté pour CIFAR-10
+Alexandre : Lancement des tests et implémentation d'optimisations
+Laurent : Implémentation de la recherche évolutive sous contraintes. 
+
+La rédaction du rapport s'est faite proportionnellement par tous les membres du projet.
